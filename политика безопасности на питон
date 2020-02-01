@@ -1,0 +1,109 @@
+from random import randint as r
+
+
+# Создание рандомных прав пользователя
+def random_user_laws():
+    list_od_laws = []
+    for i in range(4):
+        random_law = r(1, 4)
+        if random_law in (3, 4):
+            list_od_laws.append([random_law])
+        elif random_law in (1, 2):
+            second_random_law = r(0, 2)
+            if second_random_law in (1, 2) and second_random_law != random_law:
+                list_od_laws.append([random_law, second_random_law])
+            else:
+                list_od_laws.append([random_law])
+    return list_od_laws
+
+
+# Глобальные списки с людьми и их правами
+# Типы прав: 1 - Чтение, 2 - Запись, 3 - Запрет, 4 - Полные права
+# Права задаются для каждого пользователя списком из кортежей, т.е. для каждого диска есть свои права.
+NAMES_OF_USERS = {'admin': [[4], [4], [4], [4]],
+                  'Юра': random_user_laws(),
+                  'Иван': random_user_laws(),
+                  'Вася': random_user_laws(),
+                  'Никита': random_user_laws(),
+                  'Влад': random_user_laws(),
+                  'Александр': random_user_laws(),
+                  'Макс': random_user_laws()}
+
+# Названия прав и их значение
+LAWS = {1: 'Чтение', 2: 'Запись', 3: 'Запрет', 4: 'Полные права'}
+
+# Файлы/диски
+DISKS = ['1', '2', '3', '4']
+
+
+# Основная функция по работе с пользователем
+def user(user_name):
+    global LAWS, NAMES_OF_USERS, DISKS
+    while True:
+        try:
+            command = input('Жду Ваших указаний > ').lower()
+            if command not in ('read', 'write', 'grant', 'quit'):
+                raise ValueError('Данной комманды не существут! Попробуйте другую')
+            if command == 'read' or command == 'write':
+                disk = input('Над каким объектом производится операция? ')
+                assert disk in DISKS
+                if (1 in NAMES_OF_USERS[user_name][DISKS.index(disk)] and command == 'read' or
+                        2 in NAMES_OF_USERS[user_name][DISKS.index(disk)] and command == 'write' or
+                        4 in NAMES_OF_USERS[user_name][DISKS.index(disk)]):
+                    print('Операция прошла успешно')
+                else:
+                    raise ValueError('Отказ в выполнении операции. У Вас нет прав для ее осуществления')
+            elif command == 'grant':
+                disk = input('Право на какой объект передается? ')
+                assert disk in DISKS
+                if 4 not in NAMES_OF_USERS[user_name][DISKS.index(disk)]:
+                    raise ValueError('Отказ в выполнении операции. У Вас нет прав для ее осуществления')
+                law = input('Какое право передается? ').lower().strip()
+                if law not in ('read', 'write', 'grant'):
+                    raise ValueError('Данной комманды не существут! Попробуйте другую')
+                user = input('Какому пользователю передается право? ')
+                if user not in NAMES_OF_USERS.keys():
+                    raise ValueError('Данного пользователя нет в системе!')
+                laws = NAMES_OF_USERS[user][DISKS.index(disk)]
+                if law == 'read':
+                    z = [l for l in laws if l not in (4, 3, 1)]
+                    z.append(1)
+                    NAMES_OF_USERS[user][DISKS.index(disk)] = z
+                elif law == 'write':
+                    z = [l for l in laws if l not in (4, 3, 2)]
+                    z.append(2)
+                    NAMES_OF_USERS[user][DISKS.index(disk)] = z
+                else:
+                    NAMES_OF_USERS[user][DISKS.index(disk)] = [4]
+                print('Операция прошла успешно!')
+            else:
+                print(f'Работа пользователя {user_name} завершена. До свидания')
+                return
+        except AssertionError:
+            print('Выбран неправильный диск!')
+        except ValueError as e:
+            print(str(e))
+
+
+# Функция по проверке есть ли такой пользователь и вход в систему если такой пользователь есть
+def check_user(user_name):
+    global LAWS, NAMES_OF_USERS, DISKS
+    if user_name not in NAMES_OF_USERS.keys():
+        print('Такого пользователя не существует')
+    else:
+        print('Идентификация прошла успешно, добро пожаловать в систему')
+        answer = 'Перечень Ваших прав:\n'
+        for law in range(4):
+            answer += DISKS[law] + ":\t" + ", ".join([LAWS[i] for i in NAMES_OF_USERS[user_name][law]]) + '\n'
+        print(answer)
+        user(user_name)
+
+
+# Стартовая функция
+def main():
+    while True:
+        check_user(input('User: '))
+
+
+if __name__ == '__main__':
+    main()
