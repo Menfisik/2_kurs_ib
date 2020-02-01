@@ -1,0 +1,43 @@
+import random
+
+
+def create_pas():
+    Big = 'QWERTYUIOPASDFGHJKLZXCVBNM'
+    Low = 'qwertyuiopasdfghjklzxcvbnm'
+    Num = '1234567890'
+    Spe = '!@#$%^&*()'
+
+    BI = False  # Пароль должен содержать символы в верхнем регистре (True - да | False - нет)
+    LO = True  # Пароль должен содержать символы в нижнем регистре (True - да | False - нет)
+    NU = True  # Пароль должен содержать цифры (True - да | False - нет)
+    PS = False  # Пароль должен содержать спец символы (True - да | False - нет)
+
+    password_symbol = []
+
+    # Если пароль должен содержать символы в верхнем регистре
+    if BI:
+        password_symbol.extend(list(Big))
+
+    # Если пароль должен содержать символы в нижнем регистре
+    if LO:
+        password_symbol.extend(list(Low))
+
+    # Если пароль должен содержать цифры
+    if NU:
+        password_symbol.extend(list(Num))
+
+    # Если пароль должен содержать специальные символы
+    if PS:
+        password_symbol.extend(list(Spe))
+
+    random.shuffle(password_symbol)
+    return ''.join([random.choice(password_symbol) for x in range(8)])  # Длина пароля - 8 в скобочках, можно изменить
+
+
+print('Добрый день! Генератор паролей. Для генерации пароля нажмите кнопку Enter, для выхода напишите exit')
+while True:
+    a = input()
+    if 'exit' in a.lower():
+        print('Выход')
+        break
+    print(create_pas())
